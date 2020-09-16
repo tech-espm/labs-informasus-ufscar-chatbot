@@ -4,7 +4,6 @@ import AssistantV2 = require("ibm-watson/assistant/v2");
 import { IamAuthenticator } from "ibm-watson/auth";
 import appsettings = require("../appsettings");
 import Sql = require("../infra/sql");
-import Resposta = require("./resposta");
 
 export = class Bot {
 	public static async iniciarConversa(): Promise<{ idconversa: string, resposta: string }> {
