@@ -136,8 +136,8 @@
 
 	function adicionarMensagem(mensagem, nome) {
 		var $div = $(nome ?
-			'<div><div class="mensagem mensagem-outro"><div class="mensagem-container"><h1>' + encode(nome) + '</h1><p>' + trim(mensagem) + '</p><div>' + agora() + '</div></div></div></div>' :
-			'<div class="text-right"><div class="mensagem mensagem-eu espera"><div class="mensagem-container"><img src="<%- root %>/imagens/loading-grey-t.gif" /><p>' + encode(trim(mensagem)) + '</p><div>' + agora() + '</div></div></div></div>'
+			'<div><div class="mensagem mensagem-outro"><div class="mensagem-container"><h1>' + encode(nome) + '</h1><p>' + trim(mensagem) + '</p><div>' + agora() + '</div></div></div></div>' : //usuário
+			'<div class="text-right"><div class="mensagem mensagem-eu espera"><div class="mensagem-container"><img src="<%- root %>/imagens/loading-grey-t.gif" /><p>' + encode(trim(mensagem)) + '</p><div>' + agora() + '</div></div></div></div>' //chatbot
 		);
 
 		$conversaContainer.append($div);
@@ -151,7 +151,22 @@
 		cancelEvent(e);
 
 		var msg = trim(txtMensagem.value), $msg = null;
-		if (!$.active && msg && idconversa) {
+		if (!$.active && msg) {
+			if(!idconversa){
+				$.ajax({
+					url: "<%- root %>/api/bot/iniciarConversa",
+					cache: false,
+					success: function (dados) {
+						idconversa = dados.idconversa;
+						//adicionarMensagem(dados.resposta, nomebot);
+						Notification.hide();
+					},
+					error: function () {
+						var msg = "Algo deu errado! Por favor, tente novamente mais tarde " + emoji.sad;
+						Notification.error(msg, true);
+					}
+				});
+			}
 			txtMensagem.value = "";
 			$msg = adicionarMensagem(msg);
 			$.ajax({
@@ -178,6 +193,7 @@
 					Notification.error("Algo deu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
 				}
 			});
+		
 		}
 
 		return false;
@@ -185,17 +201,8 @@
 
 	Notification.wait();
 
-	$.ajax({
-		url: "<%- root %>/api/bot/iniciarConversa",
-		cache: false,
-		success: function (dados) {
-			idconversa = dados.idconversa;
-			adicionarMensagem(dados.resposta, nomebot);
-			Notification.hide();
-		},
-		error: function () {
-			var msg = "Algo deu errado! Por favor, tente novamente mais tarde " + emoji.sad;
-			Notification.error(msg, true);
-		}
-	});
+	// <button type="button" onclick= >
+
 </script>
+
+<button type="button" onclick="iniciosessao()">Change Content</button>

@@ -12,8 +12,27 @@
 	</div>
 </div>
 
+
 <%- contentFor("scripts") %>
 <script type="text/javascript">
+	var frameChat = document.createElement("iframe");
+ 
+	frameChat.src = "views\home\chat.ejs";
+	"views\home\chat.ejs";
+	
+	frameChat.style.position = "absolute";
+	
+	frameChat.style.right = "20px";
+	
+	frameChat.style.bottom = "20px";
+	
+	frameChat.style.height = "400px";
+	
+	frameChat.style.width = "350px";
+	
+	document.body.appendChild(frameChat);
+
+
 	"use strict";
 	var url = location.href, i = url.lastIndexOf("/"), aLink = document.getElementById("aLink");
 	url += ((i !== (url.length - 1)) ? "/chat" : "chat");
