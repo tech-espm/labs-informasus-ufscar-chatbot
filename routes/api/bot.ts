@@ -15,7 +15,7 @@ router.post("/enviarMensagem", wrap(async (req: express.Request, res: express.Re
 	const idconversa = req.query["idconversa"] as string;
 	const mensagem = ((req.body && req.body.mensagem) || "").toString().normalize().trim();
 	if (!idconversa || !mensagem) {
-		jsonRes(res, 400, "Dados inválidos");
+		res.status(400).json("Dados inválidos");
 		return;
 	}
 	res.json(await Bot.enviarMensagem(idconversa, mensagem));
