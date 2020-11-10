@@ -199,7 +199,7 @@
 					adicionarMensagem(mensagem[i].text, nome, ignorarScroll);
 					ignorarScroll = true;
 				} else if (mensagem[i].options && mensagem[i].options.length) {
-					adicionarMensagemOptions(mensagem[i].title, mensagem[i].options, nome, ignorarScroll);
+					adicionarMensagemOptions((mensagem[i].description && trim(mensagem[i].description)) || mensagem[i].title, mensagem[i].options, nome, ignorarScroll);
 					ignorarScroll = true;
 				}
 			}
