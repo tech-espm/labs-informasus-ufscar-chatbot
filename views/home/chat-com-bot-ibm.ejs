@@ -1,0 +1,271 @@
+﻿<div id="conversa-corpo"><div id="conversa-container"></div></div>
+<form id="conversa-rodape" method="post" action=".">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="input-group">
+					<input type="text" id="txtMensagem" class="form-control" autocomplete="off" placeholder="Digite uma mensagem">
+					<span class="input-group-btn">
+						<button class="btn btn-primary" type="submit" title="Enviar" id="btnSubmit"><i class="fa fa-send-o fa-nomargin"></i><span class="sr-only">Enviar</span></button>
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+<%- contentFor("styles") %>
+<style type="text/css">
+	#conversa-corpo {
+		position: fixed;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 64px;
+		overflow: auto;
+		padding: 0 15px 15px;
+	}
+
+	#conversa-container {
+		max-width: 1000px;
+		margin: 0 auto;
+	}
+
+	.mensagem {
+		text-align: left;
+		display: inline-block;
+		min-width: 150px;
+		max-width: 450px;
+		border-style: solid;
+		margin: 15px 0 0;
+	}
+
+	.mensagem-container {
+		border-radius: 0 0 8px 8px;
+		padding: 0 10px 10px;
+	}
+
+		.mensagem-container > h1, .mensagem-container > p {
+			font-size: 14px;
+			margin: 0 0 5px;
+		}
+
+		.mensagem-container > h1 {
+			font-weight: bold;
+		}
+
+		.mensagem-container > p {
+			white-space: pre-wrap;
+		}
+
+		.mensagem-container > div {
+			text-align: right;
+			font-weight: bold;
+			font-size: 10px;
+		}
+
+	.mensagem-outro {
+		color: #333;
+		border-radius: 0 8px 8px 8px;
+		border-color: #fff transparent transparent;
+		border-width: 10px 0 0 10px;
+	}
+
+		.mensagem-outro > .mensagem-container {
+			background-color: #fff;
+		}
+
+	.mensagem-eu {
+		color: #000;
+		border-radius: 8px 0 8px 8px;
+		margin-left: auto;
+		border-color: #dcf8c6 transparent transparent;
+		border-width: 10px 10px 0 0;
+	}
+
+		.mensagem-eu > .mensagem-container {
+			background-color: #dcf8c6;
+		}
+
+	.mensagem-eu.espera {
+		border-color: #f5f5f5 transparent transparent;
+	}
+
+		.mensagem-eu.espera > .mensagem-container {
+			background-color: #f5f5f5;
+		}
+
+	.mensagem-eu-img {
+		display: none;
+	}
+
+	.mensagem.erro {
+		border-color: #f8c6c6 transparent transparent;
+	}
+
+		.mensagem.erro > .mensagem-container {
+			background-color: #f8c6c6;
+		}
+
+	#conversa-rodape {
+		position: fixed;
+		left: 0;
+		height: 64px;
+		right: 0;
+		bottom: 0;
+		padding: 15px 0;
+		background-color: rgba(255, 255, 255, 0.9);
+	}
+</style>
+
+<%- contentFor("scripts") %>
+<script type="text/javascript">
+	"use strict";
+
+	var conversaCorpo = document.getElementById("conversa-corpo"),
+		$conversaContainer = $("#conversa-container"),
+		conversaRodape = document.getElementById("conversa-rodape"),
+		txtMensagem = document.getElementById("txtMensagem"),
+		btnSubmit = document.getElementById("btnSubmit"),
+		formHabilitado = true,
+		regExpAspas = /[\"\']/g,
+		nomebot = "InformaSUS Bot",
+		idconversa = "";
+
+	function agora() {
+		var d = new Date();
+		return format2(d.getHours()) + ":" + format2(d.getMinutes());
+	}
+
+	function habilitarForm(habilitado) {
+		if (formHabilitado === habilitado)
+			return;
+
+		formHabilitado = habilitado;
+
+		if (habilitado) {
+			conversaRodape.style.opacity = "";
+			txtMensagem.removeAttribute("disabled");
+			btnSubmit.removeAttribute("disabled");
+		} else {
+			conversaRodape.style.opacity = "0.5";
+			txtMensagem.setAttribute("disabled", "disabled");
+			btnSubmit.setAttribute("disabled", "disabled");
+		}
+	}
+
+	function ajustarTexto(texto) {
+		return trim(texto).replace(regExpAspas, "\\\'");
+	}
+
+	function adicionarMensagemOptions(title, options, nome, ignorarScroll) {
+		var html = '<div><div class="mensagem mensagem-outro"><div class="mensagem-container"><h1>' + encode(nome) + '</h1>';
+		
+		if (title)
+			html += '<p>' + trim(title) + '</p>';
+
+		for (var i = 0; i < options.length; i++) {
+			if (options[i].label && options[i].value.input.text) {
+				habilitarForm(false);
+				html += '<a href="#" class="link-opcao" onclick="enviarMensagem(\'' + ajustarTexto(options[i].label) + '\', \'' + ajustarTexto(options[i].value.input.text) + '\'); return false;">' + options[i].label + '</a><br/>';
+			}
+		}
+		
+		html += '<div>' + agora() + '</div></div></div></div>';
+
+		var $div = $(html);
+
+		$conversaContainer.append($div);
+
+		if (!ignorarScroll)
+			conversaCorpo.scrollTo(0, $conversaContainer.height());
+
+		return $div;
+	}
+
+	function adicionarMensagem(mensagem, nome, ignorarScroll) {
+		var $div;
+
+		if ((typeof mensagem) === "string") {
+			$div = $(nome ?
+				'<div><div class="mensagem mensagem-outro"><div class="mensagem-container"><h1>' + encode(nome) + '</h1><p>' + trim(mensagem) + '</p><div>' + agora() + '</div></div></div></div>' : //chatbot
+				'<div class="text-right"><div class="mensagem mensagem-eu espera"><div class="mensagem-container"><img src="<%- root %>/imagens/loading-grey-t.gif" /><p>' + encode(trim(mensagem)) + '</p><div>' + agora() + '</div></div></div></div>' //usuário
+			);
+
+			$conversaContainer.append($div);
+		} else {
+			for (var i = 0; i < mensagem.length; i++) {
+				if (mensagem[i].response_type === "text" && mensagem[i].text) {
+					adicionarMensagem(mensagem[i].text, nome, ignorarScroll);
+					ignorarScroll = true;
+				} else if (mensagem[i].options && mensagem[i].options.length) {
+					adicionarMensagemOptions((mensagem[i].description && trim(mensagem[i].description)) || mensagem[i].title, mensagem[i].options, nome, ignorarScroll);
+					ignorarScroll = true;
+				}
+			}
+		}
+
+		if (!ignorarScroll)
+			conversaCorpo.scrollTo(0, $conversaContainer.height());
+
+		return $div;
+	}
+
+	function enviarMensagem(label, value) {
+		var $msg = null;
+		if (!$.active && label && value) {
+			txtMensagem.value = "";
+			habilitarForm(true);
+			$msg = adicionarMensagem(label);
+			$.ajax({
+				url: "<%- root %>/api/bot/enviarMensagem?idconversa=" + encodeURIComponent(idconversa),
+				method: "post",
+				data: JSON.stringify({ mensagem: value }),
+				contentType: "application/json",
+				processData: false,
+				success: function (dados) {
+					$msg.find("img").remove();
+					if (!dados) {
+						dados = "Sua sessão expirou! Por favor, recarregue a página para começar a conversa novamente " + emoji.sad;
+						$msg.find(".mensagem-eu").removeClass("espera").addClass("erro");
+						adicionarMensagem(dados, nomebot).addClass("erro");
+						Notification.error(dados, true);
+					} else {
+						$msg.find(".mensagem-eu").removeClass("espera");
+						adicionarMensagem(dados, nomebot);
+					}
+				},
+				error: function () {
+					$msg.find("img").remove();
+					$msg.find(".mensagem-eu").removeClass("espera").addClass("erro");
+					Notification.error("Algo deu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
+				}
+			});
+		}
+	}
+
+	document.getElementById("conversa-rodape").onsubmit = function (e) {
+		cancelEvent(e);
+
+		var msg = trim(txtMensagem.value);
+		enviarMensagem(msg, msg);
+
+		return false;
+	}
+
+	Notification.wait();
+
+	$.ajax({
+		url: "<%- root %>/api/bot/iniciarConversa",
+		method: "get",
+		success: function (dados) {
+			Notification.hide();
+			idconversa = dados.idconversa;
+			adicionarMensagem(dados.mensagem, nomebot);
+		},
+		error: function () {
+			Notification.error("Algo deu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
+		}
+	});
+
+</script>

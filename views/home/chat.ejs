@@ -1,28 +1,8 @@
 ﻿<div id="conversa-corpo"><div id="conversa-container"></div></div>
-<form id="conversa-rodape" method="post" action=".">
-	<div class="container-fluid">
-		<div class="row">
-			<div class="col-lg-12">
-				<div class="input-group">
-					<input type="text" id="txtMensagem" class="form-control" autocomplete="off" placeholder="Digite uma mensagem">
-					<span class="input-group-btn">
-						<button class="btn btn-primary" type="submit" title="Enviar" id="btnSubmit"><i class="fa fa-send-o fa-nomargin"></i><span class="sr-only">Enviar</span></button>
-					</span>
-				</div>
-			</div>
-		</div>
-	</div>
-</form>
 
 <%- contentFor("styles") %>
 <style type="text/css">
 	#conversa-corpo {
-		position: fixed;
-		left: 0;
-		top: 0;
-		right: 0;
-		bottom: 64px;
-		overflow: auto;
 		padding: 0 15px 15px;
 	}
 
@@ -62,6 +42,17 @@
 			text-align: right;
 			font-weight: bold;
 			font-size: 10px;
+		}
+
+		.mensagem-container > a {
+			display: block;
+			margin: 10px 0 0;
+			padding: 10px 0;
+		}
+
+		.mensagem-container:not(.ativo) > a {
+			color: inherit;
+			cursor: text;
 		}
 
 	.mensagem-outro {
@@ -106,68 +97,86 @@
 		.mensagem.erro > .mensagem-container {
 			background-color: #f8c6c6;
 		}
-
-	#conversa-rodape {
-		position: fixed;
-		left: 0;
-		height: 64px;
-		right: 0;
-		bottom: 0;
-		padding: 15px 0;
-		background-color: rgba(255, 255, 255, 0.9);
-	}
 </style>
 
 <%- contentFor("scripts") %>
 <script type="text/javascript">
 	"use strict";
 
-	var conversaCorpo = document.getElementById("conversa-corpo"),
-		$conversaContainer = $("#conversa-container"),
-		conversaRodape = document.getElementById("conversa-rodape"),
-		txtMensagem = document.getElementById("txtMensagem"),
-		btnSubmit = document.getElementById("btnSubmit"),
-		formHabilitado = true,
-		regExpAspas = /[\"\']/g,
+	var $conversaContainer = $("#conversa-container"),
 		nomebot = "InformaSUS Bot",
-		idconversa = "";
+		opcoesAtuais = [],
+		idconversa = encodeURIComponent("<%- idconversa %>"),
+		conversa = {
+			resposta: "Olá! 😊",
+			opcoes: [
+				{
+					item: "Item 1",
+					resposta: "Resposta 1",
+					opcoes: [
+						{
+							item: "Item 1.1",
+							resposta: "Resposta 1.1",
+							opcoes: [
+								{
+									item: "Item 1.1.1",
+									resposta: "Resposta 1.1.1"
+								},
+								{
+									item: "Item 1.1.2",
+									resposta: "Resposta 1.1.2"
+								},
+								{
+									item: "Item 1.1.3",
+									resposta: "Resposta 1.1.3"
+								},
+							]
+						},
+						{
+							item: "Item 1.2",
+							resposta: "Resposta 1.2"
+						},
+						{
+							item: "Item 1.3",
+							resposta: 'Resposta 1.3<br/><a href="http://uol.com.br">Clique aqui!</a>'
+						},
+					]
+				},
+				{
+					item: "Item 2",
+					resposta: "Resposta 2",
+					opcoes: [
+						{
+							item: "Item 2.1",
+							resposta: "Resposta 2.1"
+						},
+						{
+							item: "Item 2.2",
+							resposta: "Resposta 2.2"
+						},
+					]
+				},
+				{
+					item: "Item 3",
+					resposta: "Resposta 3"
+				},
+			]
+		};
 
 	function agora() {
 		var d = new Date();
 		return format2(d.getHours()) + ":" + format2(d.getMinutes());
 	}
 
-	function habilitarForm(habilitado) {
-		if (formHabilitado === habilitado)
-			return;
+	function adicionarMensagemOpcoes(titulo, opcoes, nome) {
+		var html = '<div><div class="mensagem mensagem-outro"><div class="mensagem-container ativo"><h1>' + encode(nome) + '</h1>';
 
-		formHabilitado = habilitado;
+		if (titulo && (titulo = trim(titulo)))
+			html += '<p>' + titulo + '</p>';
 
-		if (habilitado) {
-			conversaRodape.style.opacity = "";
-			txtMensagem.removeAttribute("disabled");
-			btnSubmit.removeAttribute("disabled");
-		} else {
-			conversaRodape.style.opacity = "0.5";
-			txtMensagem.setAttribute("disabled", "disabled");
-			btnSubmit.setAttribute("disabled", "disabled");
-		}
-	}
-
-	function ajustarTexto(texto) {
-		return trim(texto).replace(regExpAspas, "\\\'");
-	}
-
-	function adicionarMensagemOptions(title, options, nome, ignorarScroll) {
-		var html = '<div><div class="mensagem mensagem-outro"><div class="mensagem-container"><h1>' + encode(nome) + '</h1>';
-		
-		if (title)
-			html += '<p>' + trim(title) + '</p>';
-
-		for (var i = 0; i < options.length; i++) {
-			if (options[i].label && options[i].value.input.text) {
-				habilitarForm(false);
-				html += '<a href="#" class="link-opcao" onclick="enviarMensagem(\'' + ajustarTexto(options[i].label) + '\', \'' + ajustarTexto(options[i].value.input.text) + '\'); return false;">' + options[i].label + '</a><br/>';
+		for (var i = 0; i < opcoes.length; i++) {
+			if (opcoes[i].item && (opcoes[i].item = trim(opcoes[i].item))) {
+				html += '<a href="#" class="link-opcao" onclick="enviarMensagem(this, ' + i + '); return false;">' + opcoes[i].item + '</a>';
 			}
 		}
 		
@@ -177,13 +186,15 @@
 
 		$conversaContainer.append($div);
 
-		if (!ignorarScroll)
-			conversaCorpo.scrollTo(0, $conversaContainer.height());
+		if ($div[0] && parseInt($div[0].offsetTop) >= 0)
+			window.scrollTo(0, $div[0].offsetTop);
+		else
+			window.scrollTo(0, document.body.scrollHeight);
 
 		return $div;
 	}
 
-	function adicionarMensagem(mensagem, nome, ignorarScroll) {
+	function adicionarMensagem(mensagem, nome) {
 		var $div;
 
 		if ((typeof mensagem) === "string") {
@@ -193,79 +204,58 @@
 			);
 
 			$conversaContainer.append($div);
-		} else {
-			for (var i = 0; i < mensagem.length; i++) {
-				if (mensagem[i].response_type === "text" && mensagem[i].text) {
-					adicionarMensagem(mensagem[i].text, nome, ignorarScroll);
-					ignorarScroll = true;
-				} else if (mensagem[i].options && mensagem[i].options.length) {
-					adicionarMensagemOptions((mensagem[i].description && trim(mensagem[i].description)) || mensagem[i].title, mensagem[i].options, nome, ignorarScroll);
-					ignorarScroll = true;
-				}
-			}
-		}
 
-		if (!ignorarScroll)
-			conversaCorpo.scrollTo(0, $conversaContainer.height());
+			if ($div[0] && parseInt($div[0].offsetTop) >= 0)
+				window.scrollTo(0, $div[0].offsetTop);
+			else
+				window.scrollTo(0, document.body.scrollHeight);
+		} else {
+			opcoesAtuais = mensagem.opcoes;
+			if (opcoesAtuais && opcoesAtuais.length)
+				$div = adicionarMensagemOpcoes(mensagem.resposta, opcoesAtuais, nome);
+			else if (mensagem.resposta && (mensagem.resposta = trim(mensagem.resposta)))
+				$div = adicionarMensagem(mensagem.resposta, nome);
+		}
 
 		return $div;
 	}
 
-	function enviarMensagem(label, value) {
-		var $msg = null;
-		if (!$.active && label && value) {
-			txtMensagem.value = "";
-			habilitarForm(true);
-			$msg = adicionarMensagem(label);
-			$.ajax({
-				url: "<%- root %>/api/bot/enviarMensagem?idconversa=" + encodeURIComponent(idconversa),
-				method: "post",
-				data: JSON.stringify({ mensagem: value }),
-				contentType: "application/json",
-				processData: false,
-				success: function (dados) {
-					$msg.find("img").remove();
-					if (!dados) {
-						dados = "Sua sessão expirou! Por favor, recarregue a página para começar a conversa novamente " + emoji.sad;
-						$msg.find(".mensagem-eu").removeClass("espera").addClass("erro");
-						adicionarMensagem(dados, nomebot).addClass("erro");
-						Notification.error(dados, true);
-					} else {
-						$msg.find(".mensagem-eu").removeClass("espera");
-						adicionarMensagem(dados, nomebot);
-					}
-				},
-				error: function () {
-					$msg.find("img").remove();
-					$msg.find(".mensagem-eu").removeClass("espera").addClass("erro");
-					Notification.error("Algo deu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
-				}
-			});
-		}
+	function enviarMensagem(link, indiceOpcao) {
+		if ($.active ||
+			!$(link.parentNode).hasClass("ativo") ||
+			!opcoesAtuais ||
+			indiceOpcao < 0 ||
+			indiceOpcao >= opcoesAtuais.length ||
+			!opcoesAtuais[indiceOpcao].item ||
+			!(opcoesAtuais[indiceOpcao].item = trim(opcoesAtuais[indiceOpcao].item)))
+			return;
+
+		Notification.wait();
+
+		$("div.mensagem-container.ativo").removeClass("ativo").find("a").removeAttr("href");
+
+		var $msg = adicionarMensagem(opcoesAtuais[indiceOpcao].item);
+
+		$.ajax({
+			url: "<%- root %>/api/bot/enviarMensagem?idconversa=" + idconversa,
+			method: "post",
+			data: JSON.stringify({ mensagem: opcoesAtuais[indiceOpcao].item }),
+			contentType: "application/json",
+			processData: false,
+			success: function (dados) {
+				Notification.hide();
+				$msg.find("img").remove();
+				$msg.find(".mensagem-eu").removeClass("espera");
+				adicionarMensagem(opcoesAtuais[indiceOpcao], nomebot);
+			},
+			error: function () {
+				$msg.find("img").remove();
+				$msg.find(".mensagem-eu").removeClass("espera").addClass("erro");
+				Notification.error("Algo deu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
+			}
+		});
 	}
 
-	document.getElementById("conversa-rodape").onsubmit = function (e) {
-		cancelEvent(e);
-
-		var msg = trim(txtMensagem.value);
-		enviarMensagem(msg, msg);
-
-		return false;
-	}
-
-	Notification.wait();
-
-	$.ajax({
-		url: "<%- root %>/api/bot/iniciarConversa",
-		method: "get",
-		success: function (dados) {
-			Notification.hide();
-			idconversa = dados.idconversa;
-			adicionarMensagem(dados.mensagem, nomebot);
-		},
-		error: function () {
-			Notification.error("Algo deu errado! Por favor, tente novamente mais tarde " + emoji.sad, true);
-		}
-	});
+	adicionarMensagem(conversa, nomebot);
 
 </script>

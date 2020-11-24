@@ -1,5 +1,6 @@
 ﻿import express = require("express");
 import wrap = require("express-async-error-wrapper");
+import Bot = require("../models/bot");
 import Usuario = require("../models/usuario");
 import appsettings = require("../appsettings");
 
@@ -15,7 +16,10 @@ router.all("/", wrap(async (req: express.Request, res: express.Response) => {
 }));
 
 router.all("/chat", wrap(async (req: express.Request, res: express.Response) => {
-	res.render("home/chat", { layout: "layout-externo" });
+	res.render("home/chat", {
+		layout: "layout-externo",
+		idconversa: Bot.iniciarConversa()
+	});
 }));
 
 router.all("/login", wrap(async (req: express.Request, res: express.Response) => {

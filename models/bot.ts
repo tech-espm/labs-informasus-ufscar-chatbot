@@ -1,11 +1,15 @@
-﻿// Se o projeto não compilar, pelo erro Cannot find name 'File', precisa
+﻿// Para funcionar, precisa acrescentar a dependência "ibm-watson": "^5.6.0" ao package.json
+
+// Se o projeto não compilar, pelo erro Cannot find name 'File', precisa
 // acrescentar a lib DOM ao array compilerOptions.lib no arquivo tsconfig.json
-import AssistantV2 = require("ibm-watson/assistant/v2");
-import { IamAuthenticator } from "ibm-watson/auth";
+import { randomBytes } from "crypto";
+//import AssistantV2 = require("ibm-watson/assistant/v2");
+//import { IamAuthenticator } from "ibm-watson/auth";
 import appsettings = require("../appsettings");
 import Sql = require("../infra/sql");
 
 export = class Bot {
+	/*
 	public static async iniciarConversa(): Promise<{ idconversa: string, mensagem: any[] }> {
 		// Pega o idconversa da API da IBM, e a resposta da mensagem de boas vindas,
 		// que deveria ser o id de um assunto...
@@ -82,5 +86,26 @@ export = class Bot {
 		}
 
 		return resposta;// || "Não sei o que dizer sobre isso 😥\nPoderia falar de novo, por favor, de outra forma? 😊";
+	}
+	*/
+
+	public static iniciarConversa(): string {
+		// Apenas gera um id de conversa aleatório
+		return randomBytes(16).toString("hex");
+	}
+
+	public static async enviarMensagem(idconversa: string, ip: string, mensagem: string): Promise<boolean> {
+		if (!idconversa ||
+			(idconversa = idconversa.trim()).length !== 32 ||
+			!mensagem ||
+			!(mensagem = mensagem.trim()) ||
+			mensagem.length > 65535)
+			return false;
+
+		await Sql.conectar(async (sql: Sql) => {
+			await sql.query("insert into chatlog (data, idconversa, ip, conteudo) value (now(), ?, ?, ?)", [idconversa, ip, mensagem]);
+		});
+
+		return true;
 	}
 };
