@@ -33,6 +33,7 @@ CREATE TABLE chatlog (
   id bigint NOT NULL AUTO_INCREMENT,
   data datetime NOT NULL,
   idconversa tinytext NOT NULL,
+  ip tinytext NOT NULL,
   conteudo text NOT NULL,
   PRIMARY KEY (id)
 );
