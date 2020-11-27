@@ -1,21 +1,18 @@
 import Sql = require("../infra/sql");
 
-export =  class Texto {
-    id : number;
-    texto : string;
+export = class Texto {
+	public static async alterar(t: string): Promise<void> {
+		await Sql.conectar(async (sql: Sql) => {
+			await sql.query("update textochat set texto = ?", [t]);
+		});
+	}
 
-    public static async alterar(t: Texto): Promise<void> {
-        await Sql.conectar(async (sql: Sql) => {
-            await sql.query("update textochat set texto = ? where id = ?", [t.texto, t.id]);
-        });
-    }
-    public static async obter(): Promise<Texto[]> {
-        let lista = [];
-        await Sql.conectar(async (sql: Sql) => {
-        
-        lista = (await sql.query("select texto from textochat where id = 1")) as Texto[];
-    });
+	public static async obter(): Promise<string> {
+		let texto: string = null;
+		await Sql.conectar(async (sql: Sql) => {
+			texto = (await sql.scalar("select texto from textochat")) as string;
+		});
 
-    return lista || [];
-}
-}
+		return texto;
+	}
+};

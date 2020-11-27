@@ -20,7 +20,7 @@ router.all("/chat", wrap(async (req: express.Request, res: express.Response) => 
 	res.render("home/chat", {
 		layout: "layout-externo",
 		idconversa: Bot.iniciarConversa(),
-		texto : Texto.obter()
+		texto : await Texto.obter()
 	});
 }));
 
@@ -57,6 +57,20 @@ router.get("/perfil", wrap(async (req: express.Request, res: express.Response) =
 		res.redirect(appsettings.root + "/");
 	else
 		res.render("home/perfil", { titulo: "Meu Perfil", usuario: u });
+}));
+
+router.get("/conteudo", wrap(async (req: express.Request, res: express.Response) => {
+	let u = await Usuario.cookie(req);
+	if (!u)
+		res.redirect(appsettings.root + "/");
+	else if (!u.admin)
+		res.redirect(appsettings.root + "/acesso");
+	else
+		res.render("home/conteudo", {
+			titulo: "Conteúdo do Chat",
+			usuario: u,
+			texto : await Texto.obter()
+		});
 }));
 
 router.get("/logout", wrap(async (req: express.Request, res: express.Response) => {

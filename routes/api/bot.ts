@@ -1,7 +1,6 @@
 ﻿import express = require("express");
 import wrap = require("express-async-error-wrapper");
 import Bot = require("../../models/bot");
-import { head } from "../assunto";
 
 const router = express.Router();
 

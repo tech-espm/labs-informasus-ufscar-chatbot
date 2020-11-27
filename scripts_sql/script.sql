@@ -43,3 +43,5 @@ CREATE TABLE textochat (
 	texto mediumtext NOT NULL,
 	PRIMARY KEY (id)
 );
+
+INSERT INTO textochat (texto) VALUES ('');
