@@ -6,6 +6,7 @@
 				<div class="col-xs-space-bottom">
 					<a target="_blank" id="aLink" href="#" class="btn btn-outline btn-primary" style="word-break: break-all;"></a>
 				</div>
+				<button class="open-button" onclick="openForm()">Chat</button>
 				<button type="button" id="btnLink" class="btn btn-primary btn-copyjs"><i class="fa fa-copy"></i>Copiar</button>
 			</div>
 		</div>
@@ -15,23 +16,23 @@
 
 <%- contentFor("scripts") %>
 <script type="text/javascript">
+function openForm() {
 	var frameChat = document.createElement("iframe");
  
-	frameChat.src = "views\home\chat.ejs";
-	"views\home\chat.ejs";
-	
-	frameChat.style.position = "absolute";
-	
-	frameChat.style.right = "20px";
-	
-	frameChat.style.bottom = "20px";
-	
-	frameChat.style.height = "400px";
-	
-	frameChat.style.width = "350px";
-	
-	document.body.appendChild(frameChat);
-
+ frameChat.src = "./chat";
+ 
+ frameChat.style.position = "absolute";
+ 
+ frameChat.style.right = "20px";
+ 
+ frameChat.style.bottom = "20px";
+ 
+ frameChat.style.height = "400px";
+ 
+ frameChat.style.width = "350px";
+ 
+ document.body.appendChild(frameChat);
+}
 
 	"use strict";
 	var url = location.href, i = url.lastIndexOf("/"), aLink = document.getElementById("aLink");

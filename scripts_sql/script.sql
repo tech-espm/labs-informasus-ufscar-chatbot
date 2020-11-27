@@ -36,3 +36,9 @@ CREATE TABLE chatlog (
   conteudo text NOT NULL,
   PRIMARY KEY (id)
 );
+
+CREATE TABLE textochat (
+	id int NOT NULL AUTO_INCREMENT,
+	texto mediumtext NOT NULL,
+	PRIMARY KEY (id)
+);

@@ -101,6 +101,7 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
 app.use("/", require("./routes/home"));
 app.use("/assunto", require("./routes/assunto"));
 app.use("/usuario", require("./routes/usuario"));
+app.use("/texto", require("./routes/texto"));
 // API
 app.use("/api/assunto", require("./routes/api/assunto"));
 app.use("/api/bot", require("./routes/api/bot"));
@@ -148,6 +149,7 @@ app.use(wrap(async (req: express.Request, res: express.Response, next: express.N
 //	// Não envia o objeto do erro para a página
 //	res.render("shared/erro", { layout: "layout-externo", mensagem: err.message, erro: {} });
 //});
+
 
 const server = app.listen(appsettings.port, "127.0.0.1", () => {
 	debug("Express server listening on port " + server.address()["port"]);

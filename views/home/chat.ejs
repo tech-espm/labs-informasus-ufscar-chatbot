@@ -149,7 +149,7 @@
 
 	document.getElementById("conversa-rodape").onsubmit = function (e) {
 		cancelEvent(e);
-
+		
 		var msg = trim(txtMensagem.value), $msg = null;
 		if (!$.active && msg) {
 			if(!idconversa){
