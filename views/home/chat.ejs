@@ -102,6 +102,7 @@
 <%- contentFor("scripts") %>
 <script type="text/javascript">
 	"use strict";
+	
 
 	var $conversaContainer = $("#conversa-container"),
 		nomebot = "InformaSUS Bot",
@@ -109,7 +110,8 @@
 		idconversa = encodeURIComponent("<%- idconversa %>"),
 		conversa = {
 			resposta: "Olá! 😊",
-			opcoes: [
+			opcoes : "<%- texto %>"
+			/*opcoes: [
 				{
 					item: "Item 1",
 					resposta: "Resposta 1",
@@ -160,8 +162,9 @@
 					item: "Item 3",
 					resposta: "Resposta 3"
 				},
-			]
+			] */
 		};
+		
 
 	function agora() {
 		var d = new Date();

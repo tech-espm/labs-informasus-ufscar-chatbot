@@ -13,7 +13,7 @@ export =  class Texto {
         let lista = [];
         await Sql.conectar(async (sql: Sql) => {
         
-        lista = (await sql.query("select id, texto from textochat")) as Texto[];
+        lista = (await sql.query("select texto from textochat where id = 1")) as Texto[];
     });
 
     return lista || [];
