@@ -114,11 +114,18 @@
 		return format2(d.getHours()) + ":" + format2(d.getMinutes());
 	}
 
+	function trimLinhas(mensagem) {
+		var linhas = mensagem.split("\n");
+		for (var i = 0; i < linhas.length; i++)
+			linhas[i] = trim(linhas[i]);
+		return linhas.join("\n");
+	}
+
 	function adicionarMensagemOpcoes(titulo, opcoes, nome) {
 		var html = '<div><div class="mensagem mensagem-outro"><div class="mensagem-container ativo"><h1>' + encode(nome) + '</h1>';
 
 		if (titulo && (titulo = trim(titulo)))
-			html += '<p>' + titulo + '</p>';
+			html += '<p>' + trimLinhas(titulo) + '</p>';
 
 		for (var i = 0; i < opcoes.length; i++) {
 			if (opcoes[i].item && (opcoes[i].item = trim(opcoes[i].item))) {
@@ -144,6 +151,8 @@
 		var $div;
 
 		if ((typeof mensagem) === "string") {
+			mensagem = trimLinhas(mensagem);
+
 			$div = $(nome ?
 				'<div><div class="mensagem mensagem-outro"><div class="mensagem-container"><h1>' + encode(nome) + '</h1><p>' + trim(mensagem) + '</p><div>' + agora() + '</div></div></div></div>' : //chatbot
 				'<div class="text-right"><div class="mensagem mensagem-eu espera"><div class="mensagem-container"><img src="<%- root %>/imagens/loading-grey-t.gif" /><p>' + encode(trim(mensagem)) + '</p><div>' + agora() + '</div></div></div></div>' //usuário
