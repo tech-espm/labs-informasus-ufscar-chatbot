@@ -17,7 +17,13 @@
 </div>
 
 <%- contentFor("scripts") %>
-<script type="text/javascript">
+<script type="text/javascript">	
+
+	var editor = CodeMirror.fromTextArea(document.getElementById("texto"),{
+		mode : "javascript"
+	});
+
+
 	//<![CDATA[
 	"use strict";
 

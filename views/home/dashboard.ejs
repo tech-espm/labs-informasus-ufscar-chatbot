@@ -6,8 +6,6 @@
 				<div class="col-xs-space-bottom">
 					<a target="_blank" id="aLink" href="#" class="btn btn-outline btn-primary" style="word-break: break-all;"></a>
 				</div>
-				<textarea id="texto" rows="4" cols="25"></textarea>
-				<button class="open-button" onclick="enviarForm()">Chat</button>
 				<button type="button" id="btnLink" class="btn btn-primary btn-copyjs"><i class="fa fa-copy"></i>Copiar</button>
 			</div>
 		</div>
@@ -17,9 +15,6 @@
 
 <%- contentFor("scripts") %>
 <script type="text/javascript">
-function enviarForm() {
-	
-}
 
 	"use strict";
 	var url = location.href, i = url.lastIndexOf("/"), aLink = document.getElementById("aLink");
