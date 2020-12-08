@@ -40,7 +40,7 @@
 	//<![CDATA[
 	"use strict";
 
-	var editor = CodeMirror.fromTextArea(document.getElementById("texto"), {
+	var editorTmpEval = null, editor = CodeMirror.fromTextArea(document.getElementById("texto"), {
 		mode: "javascript",
 		indentUnit: 2,
 		tabSize: 2,
@@ -69,9 +69,20 @@
 			if (JsonWebApi.active)
 				return;
 
+			var obj = {
+				texto: editor.getValue()
+			};
+
+			try {
+				eval("window.editorTmpEval = " + obj.texto);
+			} catch (ex) {
+				Notification.error("O código parece inválido! Por favor, corrija os erros antes de gravar " + emoji.sad, true);
+				return;
+			}
+
 			Notification.wait();
 
-			JsonWebApi.postFormData("<%- root %>/api/texto/alterar", form, function (response) {
+			JsonWebApi.post("<%- root %>/api/texto/alterar", obj, function (response) {
 				if (response.success)
 					Notification.success("Conteúdo do chat alterado com sucesso! " + emoji.happy);
 				else
